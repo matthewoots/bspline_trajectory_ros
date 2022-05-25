@@ -1,0 +1,3 @@
+[submodule "bs-traj-server"]
+	path = bs-traj-server
+	url = https://github.com/matthewoots/bs-traj-server.git
