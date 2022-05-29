@@ -9,6 +9,7 @@ find_package(catkin
     roscpp
     common_msgs
     message_generation
+    pcl_ros
 )
 
 find_package(Eigen3 REQUIRED)
@@ -17,6 +18,7 @@ catkin_package(
   CATKIN_DEPENDS  
     roscpp 
     common_msgs
+    pcl_ros
 
   DEPENDS
     Eigen3
@@ -26,6 +28,7 @@ include_directories(
     include
     ${catkin_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIRS} 
+    bs-traj-server/libbspline/cpp/include
 )
 
 add_subdirectory(bs-traj-server)

@@ -30,7 +30,7 @@
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "bs_trajectory_node");
+    ros::init(argc, argv, "trajectory_server_node");
     ros::NodeHandle nh("~");
     int threads = 2;
     ros::MultiThreadedSpinner spinner(threads);
