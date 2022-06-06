@@ -99,6 +99,11 @@ class trajectory_server_ros
         double _traj_duration_secs;
         int _order, _des_knot_div;
 
+        double _runtime_error, _sub_runtime_error, _search_interval;
+        double min_height, max_height;
+        double search_radius, obs_threshold;
+        double _xybuffer, _zbuffer, _passage_size;
+
         void traj_optimization_update_timer(const ros::TimerEvent &);
         void command_update_timer_idx(const ros::TimerEvent &);
 
@@ -118,6 +123,23 @@ class trajectory_server_ros
             _nh.param<double>("traj_duration_secs", _traj_duration_secs, 5.0);
             _nh.param<int>("order", _order, 5);
             _nh.param<int>("des_knot_div", _des_knot_div, 5);
+
+            /** @brief RRT parameters **/
+            _nh.param<double>("runtime_error", _runtime_error, 0.1);
+            _nh.param<double>("sub_runtime_error", _sub_runtime_error, 0.02);  
+            _nh.param<double>("search_radius", search_radius, 5.0);
+            _nh.param<double>("threshold", obs_threshold, 0.5); 
+            _nh.param<double>("search_interval", _search_interval, 0.5);
+
+            _nh.param<double>("xybuffer", _xybuffer, 1); 
+            _nh.param<double>("zbuffer", _zbuffer, 1); 
+            _nh.param<double>("passage_size", _passage_size, 1);  
+
+            std::vector<double> height_list;
+            _nh.getParam("height", height_list);
+ 
+            min_height = height_list[0];
+            max_height = height_list[1];
 
             /** @brief Subscriber that receives position data of uav */
             if (_odom_or_pose.compare("pose") == 0)
