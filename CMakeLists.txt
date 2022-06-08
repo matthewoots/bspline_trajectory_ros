@@ -29,6 +29,7 @@ include_directories(
     ${catkin_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIRS} 
     bs-traj-server/libbspline/cpp/include
+    bs-traj-server/librrtserver/include
 )
 
 add_subdirectory(bs-traj-server)
@@ -49,4 +50,5 @@ add_dependencies(${PROJECT_NAME}_node
 target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
   bs_traj_server
+  librrtserver
 )

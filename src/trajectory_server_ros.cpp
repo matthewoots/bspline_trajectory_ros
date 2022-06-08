@@ -55,6 +55,14 @@ void trajectory_server_ros::pose_callback(const geometry_msgs::PoseStamped::Cons
     current_state.q = nwu_transform.linear();
 }
 
+void trajectory_server_ros::pcl2_callback(const sensor_msgs::PointCloud2ConstPtr& msg)
+{
+    std::lock_guard<std::mutex> cloud_lock(cloud_mutex);
+    local_cloud = pcl2_converter(*msg);
+
+    return;
+}
+
 void trajectory_server_ros::odom_callback(const nav_msgs::Odometry::ConstPtr &msg)
 {
     std::lock_guard<std::mutex> odom_lock(odometry_mutex);
@@ -101,10 +109,22 @@ void trajectory_server_ros::traj_optimization_update_timer(const ros::TimerEvent
 {
     if (restart_trajectory_server)
     {
+        ms.reset_goal_points(
+            current_state.position, goal_vector[0], obs_threshold, search_radius);
         // Reinitialize and start the trajectory server
-        // int _order, double _duration_secs, double _command_interval, int _knot_div) 
-        ts.init_bspline_server(
-            _order, _traj_duration_secs, 1/_cmd_update_hz, _des_knot_div);
+        ms.initialize_bspline_server(
+            _order, _traj_duration_secs, 1/_cmd_update_hz, 
+            _des_knot_div, _max_vel);
+        ms.initialize_rrt_server(_sub_runtime_error, _runtime_error);
+    }
+
+    ms.complete_path_generation();
+
+    // Before we end the timer process
+    // Start the bspline time if starting a new path
+    if (restart_trajectory_server)
+    {
+        ms.start_module_timer();
         restart_trajectory_server = false;
     }
 
@@ -118,7 +138,7 @@ void trajectory_server_ros::command_update_timer_idx(const ros::TimerEvent &)
         ts.get_running_time() <= 0.0)
         return;
     
-    bspline_server::pva_cmd cmd = ts.update_get_command_on_path_by_idx();
+    bspline_server::pva_cmd cmd = ts.update_get_command_by_time();
     // Check if pva_cmd is valid or else we will return
     if(cmd.t <= 0)
         return;
