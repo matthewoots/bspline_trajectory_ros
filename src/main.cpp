@@ -34,6 +34,7 @@ int main(int argc, char **argv)
     ros::NodeHandle nh("~");
     int threads = 2;
     ros::MultiThreadedSpinner spinner(threads);
+    trajectory_server_ros trajectory_server_ros(nh);
     spinner.spin();
     return 0;
 }

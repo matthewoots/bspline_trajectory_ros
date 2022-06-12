@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<launch>
+<group ns="drone0">
+
+    <arg name="id" value="drone0"/>
+    <node pkg="bs_trajectory_ros" type="bs_trajectory_ros_node" name="bs_trajectory_ros_node" output="screen">
+        <param name="agent_id" value="$(arg id)"/>
+        <param name="odom_or_pose" value="pose"/>
+
+        <param name="traj_opt_update_hz" value="1.5"/>
+        <param name="cmd_update_hz" value="10"/>
+
+        <!-- Bspline parameters -->
+        <param name="traj_duration_secs" value="8.0"/>
+        <param name="order" value="5"/>
+        <param name="des_knot_div" value="5"/>
+        <param name="max_velocity" value="2.0"/>
+
+        <!-- RRT parameters -->
+        <param name="runtime_error" value="0.12"/>
+        <param name="sub_runtime_error" value="0.02"/>
+        <param name="search_radius" value="7.0"/>
+        <param name="threshold" value="0.2"/>
+        <param name="search_interval" value="7.0"/>
+
+        <param name="xybuffer" value="1.0"/>
+        <param name="zbuffer" value="1.0"/>
+        <param name="passage_size" value="12.0"/>
+
+        <rosparam param="height">[1.0, 2.0]</rosparam>
+    </node>
+
+</group>
+</launch>

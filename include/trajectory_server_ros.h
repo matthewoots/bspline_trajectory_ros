@@ -75,11 +75,14 @@ class trajectory_server_ros
             Eigen::Vector3d euler;
         };
 
+        pose current_state;
+
         trajectory_server::bspline_server ts;
         trajectory_server::main_server ms;
 
         ros::NodeHandle _nh;
         ros::Publisher _pos_raw_pub, _traj_pub;
+        
         ros::Subscriber _odom_sub, _pose_sub;
         ros::Subscriber _goal_sub, _local_pcl_sub;
         ros::Subscriber _pcl_sensor_sub, _traj_sub;
@@ -88,22 +91,19 @@ class trajectory_server_ros
 
         geometry_msgs::Point goal_pose; 
 
+        nav_msgs::Path path;
+
         std::string _id, _odom_or_pose;
 
-        vector<Eigen::Vector3d> goal_vector;
+        Eigen::Vector3d goal;
 
-        pcl::PointCloud<pcl::PointXYZ>::Ptr local_cloud;
+        pcl::PointCloud<pcl::PointXYZ>::Ptr local_cloud;        
 
-        pose current_state;
-
-        std::mutex odometry_mutex;
-        std::mutex trajectory_mutex;
-        std::mutex goal_mutex;
-        std::mutex cloud_mutex;
-
-        bool restart_trajectory_server;
+        bool _restart_trajectory_server;
+        bool _completed;
         double _traj_opt_update_hz, _cmd_update_hz;
         double _traj_duration_secs;
+        double _command_timer_time;
         double _max_vel;
         int _order, _des_knot_div;
 
@@ -113,13 +113,14 @@ class trajectory_server_ros
         double _xybuffer, _zbuffer, _passage_size;
 
         void traj_optimization_update_timer(const ros::TimerEvent &);
+        
         void command_update_timer_idx(const ros::TimerEvent &);
 
         void pose_callback(const geometry_msgs::PoseStamped::ConstPtr &msg);
 
         void odom_callback(const nav_msgs::Odometry::ConstPtr &msg);
 
-        void goal_callback(const nav_msgs::Path::ConstPtr &msg);
+        void goal_callback(const geometry_msgs::PoseStamped::ConstPtr &msg);
 
         void pcl2_callback(const sensor_msgs::PointCloud2ConstPtr& msg);
 
@@ -134,18 +135,18 @@ class trajectory_server_ros
         {
             _nh.param<std::string>("agent_id", _id, "drone0");
             _nh.param<std::string>("odom_or_pose", _odom_or_pose, "pose");
-            _nh.param<double>("traj_opt_update_hz", _traj_opt_update_hz, 2);
-            _nh.param<double>("cmd_update_hz", _cmd_update_hz, 25);
+            _nh.param<double>("traj_opt_update_hz", _traj_opt_update_hz, 1);
+            _nh.param<double>("cmd_update_hz", _cmd_update_hz, 1);
 
+            /** @brief Bspline parameters **/
             _nh.param<double>("traj_duration_secs", _traj_duration_secs, 5.0);
+            _nh.param<double>("max_velocity", _max_vel, 1.0);
             _nh.param<int>("order", _order, 5);
             _nh.param<int>("des_knot_div", _des_knot_div, 5);
 
-            _nh.param<double>("max_velocity", _max_vel, 1.0);
-
             /** @brief RRT parameters **/
             _nh.param<double>("runtime_error", _runtime_error, 0.1);
-            _nh.param<double>("sub_runtime_error", _sub_runtime_error, 0.02);  
+            _nh.param<double>("sub_runtime_error", _sub_runtime_error, 0.01);  
             _nh.param<double>("search_radius", search_radius, 5.0);
             _nh.param<double>("threshold", obs_threshold, 0.5); 
             _nh.param<double>("search_interval", _search_interval, 0.5);
@@ -171,7 +172,7 @@ class trajectory_server_ros
                 throw std::logic_error("[ERROR] no pose data subscriber found");
 
             /** @brief Subscriber that receives goal vector */
-            _goal_sub = _nh.subscribe<nav_msgs::Path>(
+            _goal_sub = _nh.subscribe<geometry_msgs::PoseStamped>(
                     "/" + _id + "/goal", 20, &trajectory_server_ros::goal_callback, this);
 
             /** @brief Subscriber that receives pointcloud */
