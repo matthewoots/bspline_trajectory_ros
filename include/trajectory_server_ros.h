@@ -167,7 +167,7 @@ class trajectory_server_ros
                     "/" + _id + "/mavros/local_position/pose", 20, &trajectory_server_ros::pose_callback, this);
             else if (_odom_or_pose.compare("odom") == 0)
                 _pose_sub = _nh.subscribe<nav_msgs::Odometry>(
-                    "/" + _id + "/mavros/local_position/odom", 20, &trajectory_server_ros::odom_callback, this);
+                    "/" + _id + "/mavros/local_position/pose", 20, &trajectory_server_ros::odom_callback, this);
             else
                 throw std::logic_error("[ERROR] no pose data subscriber found");
 
