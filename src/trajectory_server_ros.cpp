@@ -188,17 +188,17 @@ void trajectory_server_ros::command_update_timer_idx(const ros::TimerEvent &)
     // Check if pva_cmd is valid or else we will return
     if(cmd.t <= 0)
         return;
-    IOFormat CleanFmt(3, 0, ", ", "\n", "[", "]");
-    std::cout << "[ROS] time: " << 
-        KRED << std::setprecision(3) << ms.get_start_time()  << KNRM <<
-        " " << 
-        KBLU << std::setprecision(3) << cmd.t  << KNRM <<
-        " " << 
-        KRED << std::setprecision(3) << ms.get_end_time()  << KNRM <<
-        " position: " << 
-        KBLU << cmd.p.transpose().format(CleanFmt) << KNRM << 
-        " total velocity: " << 
-        KBLU << std::setprecision(3) << cmd.v.norm() << KNRM << std::endl;
+    // IOFormat CleanFmt(3, 0, ", ", "\n", "[", "]");
+    // std::cout << "[ROS] time: " << 
+    //     KRED << std::setprecision(3) << ms.get_start_time()  << KNRM <<
+    //     " " << 
+    //     KBLU << std::setprecision(3) << cmd.t  << KNRM <<
+    //     " " << 
+    //     KRED << std::setprecision(3) << ms.get_end_time()  << KNRM <<
+    //     " position: " << 
+    //     KBLU << cmd.p.transpose().format(CleanFmt) << KNRM << 
+    //     " total velocity: " << 
+    //     KBLU << std::setprecision(3) << cmd.v.norm() << KNRM << std::endl;
     
     mavros_msgs::PositionTarget pt;
     pt.header.stamp = ros::Time::now();
