@@ -30,6 +30,7 @@ include_directories(
     ${EIGEN3_INCLUDE_DIRS} 
     bs-traj-server/libbspline/cpp/include
     bs-traj-server/librrtserver/include
+    bs-traj-server/LBFGSpp/include
 )
 
 add_subdirectory(bs-traj-server)

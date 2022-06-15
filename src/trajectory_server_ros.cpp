@@ -61,6 +61,13 @@ void trajectory_server_ros::pcl2_callback(const sensor_msgs::PointCloud2ConstPtr
     return;
 }
 
+void trajectory_server_ros::other_trajectory_callback(
+    const trajectory_msgs::JointTrajectoryConstPtr& msg)
+{
+    
+    return;
+}
+
 void trajectory_server_ros::odom_callback(const nav_msgs::Odometry::ConstPtr &msg)
 {
     Affine3d nwu_transform = Affine3d::Identity();
@@ -135,6 +142,9 @@ void trajectory_server_ros::traj_optimization_update_timer(const ros::TimerEvent
 
     vector<Eigen::Vector3d> local_control_points =
         ms.get_bspline_control_points(_traj_duration_secs);
+
+    vector<double> knots_points = 
+        ms.get_bspline_knots(_traj_duration_secs);
     
     trajectory_msgs::JointTrajectory joint_msg;
     joint_msg.header.stamp = ros::Time::now();
@@ -146,6 +156,8 @@ void trajectory_server_ros::traj_optimization_update_timer(const ros::TimerEvent
         point.positions.push_back(local_control_points[i].x());
         point.positions.push_back(local_control_points[i].y());
         point.positions.push_back(local_control_points[i].z());
+
+        point.effort.push_back(knots_points[i]);
 
         joint_msg.points.push_back(point);
     }    

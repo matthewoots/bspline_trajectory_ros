@@ -97,7 +97,7 @@ class trajectory_server_ros
 
         Eigen::Vector3d goal;
 
-        pcl::PointCloud<pcl::PointXYZ>::Ptr local_cloud;        
+        pcl::PointCloud<pcl::PointXYZ>::Ptr local_cloud;
 
         bool _restart_trajectory_server;
         bool _completed;
@@ -123,6 +123,9 @@ class trajectory_server_ros
         void goal_callback(const geometry_msgs::PoseStamped::ConstPtr &msg);
 
         void pcl2_callback(const sensor_msgs::PointCloud2ConstPtr& msg);
+
+        void other_trajectory_callback(
+            const trajectory_msgs::JointTrajectoryConstPtr& msg);
 
 
     public:
@@ -173,11 +176,14 @@ class trajectory_server_ros
 
             /** @brief Subscriber that receives goal vector */
             _goal_sub = _nh.subscribe<geometry_msgs::PoseStamped>(
-                    "/" + _id + "/goal", 20, &trajectory_server_ros::goal_callback, this);
+                    "/" + _id + "/goal", 10, &trajectory_server_ros::goal_callback, this);
 
             /** @brief Subscriber that receives pointcloud */
             _local_pcl_sub = _nh.subscribe<sensor_msgs::PointCloud2>(
-                    "/" + _id + "/local_pcl", 20,  &trajectory_server_ros::pcl2_callback, this);
+                    "/" + _id + "/local_pcl", 5,  &trajectory_server_ros::pcl2_callback, this);
+
+            _traj_sub = _nh.subscribe<trajectory_msgs::JointTrajectory>(
+                "/trajectory/points", 100,  &trajectory_server_ros::other_trajectory_callback, this);
 
 
             /** @brief Publisher that publishes control raw setpoints */
