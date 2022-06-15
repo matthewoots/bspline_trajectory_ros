@@ -104,13 +104,15 @@ class trajectory_server_ros
         double _traj_opt_update_hz, _cmd_update_hz;
         double _traj_duration_secs;
         double _command_timer_time;
-        double _max_vel;
+        double _max_vel, _max_acc;
         int _order, _des_knot_div;
 
         double _runtime_error, _sub_runtime_error, _search_interval;
         double min_height, max_height;
         double search_radius, obs_threshold;
         double _xybuffer, _zbuffer, _passage_size;
+
+        vector<double> weight_vector{0.0, 0.0, 0.0, 0.0, 0.0};
 
         void traj_optimization_update_timer(const ros::TimerEvent &);
         
@@ -156,7 +158,15 @@ class trajectory_server_ros
 
             _nh.param<double>("xybuffer", _xybuffer, 1); 
             _nh.param<double>("zbuffer", _zbuffer, 1); 
-            _nh.param<double>("passage_size", _passage_size, 1);  
+            _nh.param<double>("passage_size", _passage_size, 1);
+
+            _nh.param<double>("weight_smooth", weight_vector[0], 1); 
+            _nh.param<double>("weight_feas", weight_vector[1], 1); 
+            _nh.param<double>("weight_term", weight_vector[2], 1);  
+            _nh.param<double>("weight_static", weight_vector[3], 1);  
+            _nh.param<double>("weight_reci", weight_vector[4], 1);  
+
+            _nh.param<double>("max_acc", _max_acc, 1);
 
             std::vector<double> height_list;
             _nh.getParam("height", height_list);
@@ -199,6 +209,11 @@ class trajectory_server_ros
                 ros::Duration(1/_cmd_update_hz), 
                 &trajectory_server_ros::command_update_timer_idx, this, false, false);
 
+            std::string copy_id = _id; 
+            std::string uav_id_char = copy_id.erase(0,5); // removes first 5 character
+            int uav_id = stoi(uav_id_char);
+
+            ms.initialize_opt_server(weight_vector, _max_acc, uav_id);
         }
 
         // We will start the timers when we received a goal

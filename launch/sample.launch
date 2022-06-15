@@ -28,6 +28,15 @@
         <param name="passage_size" value="12.0"/>
 
         <rosparam param="height">[1.0, 2.0]</rosparam>
+
+        <!-- Optimization parameters -->
+        <param name="weight_smooth" value="5.0"/>
+        <param name="weight_feas" value="5.0"/>
+        <param name="weight_term" value="0.1"/>
+        <param name="weight_static" value="2.5"/>
+        <param name="weight_reci" value="7.0"/>
+        <param name="max_acc" value="0.3"/>
+
     </node>
 
 </group>

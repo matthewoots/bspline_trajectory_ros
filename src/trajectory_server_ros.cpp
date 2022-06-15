@@ -64,6 +64,25 @@ void trajectory_server_ros::pcl2_callback(const sensor_msgs::PointCloud2ConstPtr
 void trajectory_server_ros::other_trajectory_callback(
     const trajectory_msgs::JointTrajectoryConstPtr& msg)
 {
+    std::string copy_id = msg->joint_names[0]; 
+    std::string uav_id_char = copy_id.erase(0,5); // removes first 5 character
+    int idx = stoi(uav_id_char);
+
+    vector<Eigen::Vector3d> agent_control_points;
+    vector<double> agent_knots;
+    for (int i = 0; i < msg->points.size(); i++)
+    {
+        Eigen::Vector3d point = 
+            Eigen::Vector3d(
+            msg->points[i].positions[0],
+            msg->points[i].positions[1],
+            msg->points[i].positions[2]);
+        agent_control_points.push_back(point);
+        agent_knots.push_back(msg->points[i].effort[0]);
+    }
+
+    ms.update_other_agents(idx, agent_control_points, agent_knots);
+    
     
     return;
 }
