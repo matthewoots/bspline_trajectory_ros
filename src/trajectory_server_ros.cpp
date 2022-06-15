@@ -70,6 +70,10 @@ void trajectory_server_ros::other_trajectory_callback(
 
     vector<Eigen::Vector3d> agent_control_points;
     vector<double> agent_knots;
+
+    int32_t ts = msg->header.stamp.sec;
+    system_clock::time_point origin_time{std::chrono::seconds(ts)};
+
     for (int i = 0; i < msg->points.size(); i++)
     {
         Eigen::Vector3d point = 
@@ -81,7 +85,8 @@ void trajectory_server_ros::other_trajectory_callback(
         agent_knots.push_back(msg->points[i].effort[0]);
     }
 
-    ms.update_other_agents(idx, agent_control_points, agent_knots);
+    ms.update_other_agents(
+        idx, agent_control_points, agent_knots, origin_time);
     
     
     return;
@@ -166,7 +171,15 @@ void trajectory_server_ros::traj_optimization_update_timer(const ros::TimerEvent
         ms.get_bspline_knots(_traj_duration_secs);
     
     trajectory_msgs::JointTrajectory joint_msg;
-    joint_msg.header.stamp = ros::Time::now();
+
+    auto origin_time = std::chrono::time_point<std::chrono::system_clock>{};
+    auto tstamp = ms.get_bspline_chronos_start_time() - origin_time;
+    int32_t sec = std::chrono::duration_cast<std::chrono::seconds>(tstamp).count();
+    int32_t nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(tstamp).count() % 1000000000UL;
+    // std::cout << "sec: " << sec << " nsec: " << nsec << " since epoch: \n";
+    ros::Time n(sec, nsec);
+
+    joint_msg.header.stamp = n;
     joint_msg.joint_names.push_back(_id);
 
     for (int i = 0; i < local_control_points.size(); i++)
