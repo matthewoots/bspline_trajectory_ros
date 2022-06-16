@@ -71,8 +71,26 @@ void trajectory_server_ros::other_trajectory_callback(
     vector<Eigen::Vector3d> agent_control_points;
     vector<double> agent_knots;
 
-    int32_t ts = msg->header.stamp.sec;
-    system_clock::time_point origin_time{std::chrono::seconds(ts)};
+    int32_t ts_sec = msg->header.stamp.sec;
+    int32_t ts_nano = msg->header.stamp.nsec;
+     
+    system_clock::time_point other_origin_time{
+        std::chrono::seconds((int32_t)round(msg->header.stamp.toSec()))};
+
+    auto origin_time = std::chrono::time_point<std::chrono::system_clock>{};
+    auto tstamp = ms.get_bspline_chronos_start_time() - origin_time;
+    int32_t sec = std::chrono::duration_cast<std::chrono::seconds>(tstamp).count();
+    int32_t nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(tstamp).count() % 1000000000UL;
+    // std::cout << "sec: " << sec << " nsec: " << nsec << " since epoch: \n";
+    ros::Time n(sec, nsec);
+    auto offset = std::chrono::milliseconds((int32_t)((msg->header.stamp - n).toSec()*1000));
+    auto idx_time = ms.get_bspline_chronos_start_time() + offset;
+
+    // std::cout << "[ROS] uav " << uav_id << " on " <<
+    //     idx << KYEL << " ROS: " << (msg->header.stamp - n).toSec() << " Chronos: " <<
+    //     duration<double>(other_origin_time - ms.get_bspline_chronos_start_time()).count() << " New Method: " <<
+    //     duration<double>(idx_time - ms.get_bspline_chronos_start_time()).count() << 
+    //     KNRM << std::endl;
 
     for (int i = 0; i < msg->points.size(); i++)
     {
@@ -86,7 +104,7 @@ void trajectory_server_ros::other_trajectory_callback(
     }
 
     ms.update_other_agents(
-        idx, agent_control_points, agent_knots, origin_time);
+        idx, agent_control_points, agent_knots, idx_time);
     
     
     return;
@@ -149,7 +167,8 @@ void trajectory_server_ros::traj_optimization_update_timer(const ros::TimerEvent
             _des_knot_div, _max_vel);
         ms.initialize_rrt_server(
             _sub_runtime_error, _runtime_error,
-            _xybuffer, _zbuffer, _passage_size);
+            _xybuffer, _zbuffer, _passage_size,
+            min_height, max_height);
     }
 
     std::cout << std::endl;

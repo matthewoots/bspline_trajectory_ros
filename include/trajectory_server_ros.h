@@ -109,6 +109,8 @@ class trajectory_server_ros
         double _max_vel, _max_acc;
         int _order, _des_knot_div;
 
+        int uav_id;
+
         double _runtime_error, _sub_runtime_error, _search_interval;
         double min_height, max_height;
         double search_radius, obs_threshold;
@@ -213,7 +215,7 @@ class trajectory_server_ros
 
             std::string copy_id = _id; 
             std::string uav_id_char = copy_id.erase(0,5); // removes first 5 character
-            int uav_id = stoi(uav_id_char);
+            uav_id = stoi(uav_id_char);
 
             ms.initialize_opt_server(weight_vector, _max_acc, uav_id);
         }

@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "trajectory_server_node");
     ros::NodeHandle nh("~");
-    int threads = 3;
+    int threads = 4;
     ros::MultiThreadedSpinner spinner(threads);
     trajectory_server_ros trajectory_server_ros(nh);
     spinner.spin();
