@@ -173,6 +173,7 @@ void trajectory_server_ros::traj_optimization_update_timer(const ros::TimerEvent
 
     std::cout << std::endl;
     time_point<std::chrono::system_clock> test_cycle_start = system_clock::now();
+    ros::Time ros_time_start = ros::Time::now();
     
     ms.complete_path_generation();
 
@@ -182,6 +183,8 @@ void trajectory_server_ros::traj_optimization_update_timer(const ros::TimerEvent
         KNRM << " in " << KBLU << test_time_diff*1000 << KNRM <<
         "ms" << std::endl;
     std::cout << std::endl;
+
+    ros::Duration ros_time_diff = ros::Time::now() - ros_time_start;
 
     vector<Eigen::Vector3d> local_control_points =
         ms.get_bspline_control_points(_traj_duration_secs);
@@ -207,6 +210,7 @@ void trajectory_server_ros::traj_optimization_update_timer(const ros::TimerEvent
         point.positions.push_back(local_control_points[i].x());
         point.positions.push_back(local_control_points[i].y());
         point.positions.push_back(local_control_points[i].z());
+        point.time_from_start = ros_time_diff;
 
         point.effort.push_back(knots_points[i]);
 
