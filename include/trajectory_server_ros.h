@@ -116,7 +116,7 @@ class trajectory_server_ros
         double search_radius, obs_threshold;
         double _xybuffer, _zbuffer, _passage_size;
 
-        vector<double> weight_vector{0.0, 0.0, 0.0, 0.0, 0.0};
+        vector<double> weight_vector{0.0, 0.0, 0.0, 0.0};
 
         void traj_optimization_update_timer(const ros::TimerEvent &);
         
@@ -166,9 +166,8 @@ class trajectory_server_ros
 
             _nh.param<double>("weight_smooth", weight_vector[0], 1); 
             _nh.param<double>("weight_feas", weight_vector[1], 1); 
-            _nh.param<double>("weight_term", weight_vector[2], 1);  
-            _nh.param<double>("weight_static", weight_vector[3], 1);  
-            _nh.param<double>("weight_reci", weight_vector[4], 1);  
+            _nh.param<double>("weight_static", weight_vector[2], 1);  
+            _nh.param<double>("weight_reci", weight_vector[3], 1);  
 
             _nh.param<double>("max_acc", _max_acc, 1);
 

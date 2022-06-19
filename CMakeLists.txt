@@ -13,6 +13,7 @@ find_package(catkin
 )
 
 find_package(Eigen3 REQUIRED)
+find_package(PCL 1.3 REQUIRED COMPONENTS common filters kdtree)
 
 catkin_package(
   CATKIN_DEPENDS  
@@ -28,6 +29,7 @@ include_directories(
     include
     ${catkin_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIRS} 
+    ${PCL_INCLUDE_DIRS}
     bs-traj-server/libbspline/cpp/include
     bs-traj-server/librrtserver/include
     bs-traj-server/LBFGSpp/include
@@ -48,8 +50,11 @@ add_dependencies(${PROJECT_NAME}_node
 )
 
 ## Specify libraries to link a library or executable target against
+## bs_traj_server must be in front of PCL libraries or else there is a compilation error
 target_link_libraries(${PROJECT_NAME}_node
-  ${catkin_LIBRARIES}
-  bs_traj_server
-  librrtserver
+  PUBLIC 
+    ${catkin_LIBRARIES}
+    bs_traj_server
+    ${PCL_LIBRARIES}
+    librrtserver
 )
