@@ -180,30 +180,30 @@ class trajectory_server_ros
             /** @brief Subscriber that receives position data of uav */
             if (_odom_or_pose.compare("pose") == 0)
                 _pose_sub = _nh.subscribe<geometry_msgs::PoseStamped>(
-                    "/" + _id + "/mavros/local_position/pose", 20, &trajectory_server_ros::pose_callback, this);
+                    "/" + _id + "/uav/nwu", 20, &trajectory_server_ros::pose_callback, this);
             else if (_odom_or_pose.compare("odom") == 0)
                 _pose_sub = _nh.subscribe<nav_msgs::Odometry>(
-                    "/" + _id + "/mavros/local_position/pose", 20, &trajectory_server_ros::odom_callback, this);
+                    "/" + _id + "/uav/nwu", 20, &trajectory_server_ros::odom_callback, this);
             else
                 throw std::logic_error("[ERROR] no pose data subscriber found");
 
             /** @brief Subscriber that receives goal vector */
             _goal_sub = _nh.subscribe<geometry_msgs::PoseStamped>(
-                    "/" + _id + "/goal", 10, &trajectory_server_ros::goal_callback, this);
+                "/" + _id + "/goal", 10, &trajectory_server_ros::goal_callback, this);
 
             /** @brief Subscriber that receives pointcloud */
             _local_pcl_sub = _nh.subscribe<sensor_msgs::PointCloud2>(
-                    "/" + _id + "/local_pcl", 5,  &trajectory_server_ros::pcl2_callback, this);
+                "/" + _id + "/local_pcl", 5,  &trajectory_server_ros::pcl2_callback, this);
 
             _traj_sub = _nh.subscribe<trajectory_msgs::JointTrajectory>(
-                "/trajectory/points", 100,  &trajectory_server_ros::other_trajectory_callback, this);
+                "/drone_trajectory/points", 100,  &trajectory_server_ros::other_trajectory_callback, this);
 
 
             /** @brief Publisher that publishes control raw setpoints */
 		    _pos_raw_pub = _nh.advertise<mavros_msgs::PositionTarget>(
-			    "/" + _id + "/mavros/setpoint_raw/local", 20);
+			    "/" + _id + "/bypass", 20);
             _traj_pub = _nh.advertise<trajectory_msgs::JointTrajectory>(
-                "/trajectory/points", 20);
+                "/drone_trajectory/points", 20);
 
             _trajectory_opt_timer = _nh.createTimer(
                 ros::Duration(1/_traj_opt_update_hz), 
