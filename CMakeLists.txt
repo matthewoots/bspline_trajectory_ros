@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(bs_trajectory_ros)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-deprecated-declarations")
+# Set target C++ standard and required compiler features
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-deprecated-declarations")
 
 ## Find catkin macros and libraries
 find_package(catkin 
@@ -13,7 +16,7 @@ find_package(catkin
 )
 
 find_package(Eigen3 REQUIRED)
-find_package(PCL 1.3 REQUIRED COMPONENTS common filters kdtree)
+find_package(PCL REQUIRED COMPONENTS common filters kdtree)
 
 catkin_package(
   CATKIN_DEPENDS  
