@@ -205,6 +205,14 @@ void trajectory_server_ros::traj_optimization_update_timer(const ros::TimerEvent
     joint_msg.header.stamp = n;
     joint_msg.joint_names.push_back(_id);
 
+    nav_msgs::Path path;
+    path.header.stamp = ros::Time::now();
+	path.header.frame_id = "world";
+
+    geometry_msgs::PoseStamped pose_topic;
+    pose_topic.header.stamp = ros::Time::now();
+    pose_topic.header.frame_id = "world";
+
     for (int i = 0; i < local_control_points.size(); i++)
     {
         trajectory_msgs::JointTrajectoryPoint point;
@@ -216,9 +224,13 @@ void trajectory_server_ros::traj_optimization_update_timer(const ros::TimerEvent
         point.effort.push_back(knots_points[i]);
 
         joint_msg.points.push_back(point);
+
+		pose_topic.pose.position = vector_to_point(local_control_points[i]);
+		path.poses.push_back(pose_topic);
     }    
 
     _traj_pub.publish(joint_msg);
+    _log_path_pub.publish(path);
 
     // Before we end the timer process
     // Start the bspline time if starting a new path

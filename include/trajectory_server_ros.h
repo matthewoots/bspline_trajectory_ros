@@ -83,7 +83,7 @@ class trajectory_server_ros
         trajectory_server::main_server ms;
 
         ros::NodeHandle _nh;
-        ros::Publisher _pos_raw_pub, _traj_pub;
+        ros::Publisher _pos_raw_pub, _traj_pub, _log_path_pub;
         
         ros::Subscriber _odom_sub, _pose_sub;
         ros::Subscriber _goal_sub, _local_pcl_sub;
@@ -197,7 +197,8 @@ class trajectory_server_ros
 
             _traj_sub = _nh.subscribe<trajectory_msgs::JointTrajectory>(
                 "/drone_trajectory/points", 100,  &trajectory_server_ros::other_trajectory_callback, this);
-
+            _log_path_pub = _nh.advertise<nav_msgs::Path>(
+                "/" + _id + "/drone_trajectory/control_points", 10, true);
 
             /** @brief Publisher that publishes control raw setpoints */
 		    _pos_raw_pub = _nh.advertise<mavros_msgs::PositionTarget>(
